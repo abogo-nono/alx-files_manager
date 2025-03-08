@@ -1,22 +1,34 @@
-#!/usr/bin/node
+import { Router } from 'express';
+import AppController from '../controllers/AppController';
+import UsersController from '../controllers/UsersController';
+import AuthController from '../controllers/AuthController';
+import FilesController from '../controllers/FilesController';
 
-const express = require('express');
-const router = express.Router();
-const AppController = require('../controllers/AppController');
-const UsersController = require('../controllers/UsersController');
-const AuthController = require('../controllers/AuthController');
-const FilesController = require('../controllers/FilesController');
+const router = Router();
 
+// AppController endpoint definitions
 router.get('/status', AppController.getStatus);
 router.get('/stats', AppController.getStats);
+
+// UsersController endpoint definitions
 router.post('/users', UsersController.postNew);
+
+// AuthController endpoint definitions
 router.get('/connect', AuthController.getConnect);
 router.get('/disconnect', AuthController.getDisconnect);
-router.get('/users/me', AuthController.getMe);
-router.get('/users/:id/files', FilesController.getIndex);
-router.post('/users/:id/files', FilesController.postUpload);
-router.get('/users/:id/files/:fileId', FilesController.getShow);
-router.put('/users/:id/files/:fileId/publish', FilesController.putPublish);
-router.put('/users/:id/files/:fileId/unpublish', FilesController.putUnpublish);
+router.get('/users/me', UsersController.getMe);
 
-module.exports = router;
+// FilesController endpoint definitions
+router.post('/files', FilesController.postUpload);
+
+router.get('/files/:id', FilesController.getShow);
+router.get('/files', FilesController.getIndex);
+
+// Publishing and Unpublishing FilesController endpoint definitions
+router.put('/files/:id/publish', FilesController.putPublish);
+router.put('/files/:id/unpublish', FilesController.putUnpublish);
+
+// File data endpoint definition
+router.get('/files/:id/data', FilesController.getFile);
+
+export default router;

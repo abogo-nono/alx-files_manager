@@ -1,28 +1,27 @@
-#!/usr/bin/node
+import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
-const redisClient = require('../utils/redis');
-const dbClient = require('../utils/db');
+const AppController = {
+  async getStatus(req, res) {
+    const redisStatus = redisClient.isAlive();
+    const dbStatus = dbClient.isAlive();
 
-class AppController {
-    static async getStatus(req, res) {
-        const isRedisAlive = await redisClient.isAlive();
-        const isDbAlive = await dbClient.isAlive();
-
-        res.json({ redis: isRedisAlive, db: isDbAlive });
-        res.end();
+    if (redisStatus && dbStatus) {
+      res.status(200).json({ redis: true, db: true });
+    } else {
+      res.status(500).json({ redis: redisStatus, db: dbStatus });
     }
+  },
 
-    static async getStats(req, res) {
-        try {
-            const userCount = await dbClient.nbUsers();
-            const fileCount = await dbClient.nbFiles();
-            res.json({ userCount, fileCount });
-        } catch (error) {
-            res.status(500).json({ error: 'Internal Server Error' });
-        } finally {
-            res.end();
-        }
+  async getStats(req, res) {
+    try {
+      const usersCount = await dbClient.nbUsers();
+      const filesCount = await dbClient.nbFiles();
+      res.status(200).json({ users: usersCount, files: filesCount });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
     }
-}
+  },
+};
 
-module.exports = AppController;
+export default AppController;
